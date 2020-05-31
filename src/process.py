@@ -67,7 +67,8 @@ def main():
     for filename in sys.argv[1:]:
         csv_file = make_csv(filename)
         times, xpos = parse_csv(csv_file)
-        num_datapoints = len(times)
+        plt.plot(times, xpos)
+        plt.show()
 
 
 if __name__ == "__main__":
