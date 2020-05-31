@@ -2,6 +2,7 @@ import sys
 from datetime import timedelta
 import csv
 import numpy as np
+from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 
 
@@ -56,7 +57,19 @@ def parse_csv(csv_file):
     for p in raw_pos:
         pos.append(int(p[:-3]))
 
-    return (times, pos)
+    return (np.array(times), np.array(pos))
+
+
+def func(x, m, b):
+    return m * x + b
+
+
+def fit_to_curve(times, xpos):
+    e = np.repeat(1., times.shape[0])
+    popt, pcov = curve_fit(func, times, xpos, sigma=e)
+    p = func(times, *popt)
+    plt.plot(times, p, 'r-')
+    return popt[0]
 
 
 def main():
@@ -67,6 +80,8 @@ def main():
     for filename in sys.argv[1:]:
         csv_file = make_csv(filename)
         times, xpos = parse_csv(csv_file)
+        times, xpos = times[:-5], np.gradient(xpos[:-5])
+        prediction = fit_to_curve(times, xpos)
         plt.plot(times, xpos)
         plt.show()
 
